@@ -1,0 +1,64 @@
+{
+  "name": "@aurix-music/deezer",
+  "version": "0.0.3",
+  "description": "Standalone Deezer track resolver with BF_CBC_STRIPE decryption",
+  "author": "vanquzie",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aurix-music/deezer.git"
+  },
+  "homepage": "https://github.com/aurix-music/deezer#readme",
+  "bugs": {
+    "url": "https://github.com/aurix-music/deezer/issues"
+  },
+  "keywords": [
+    "deezer",
+    "blowfish",
+    "audio",
+    "decrypt",
+    "flac"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/deezer.js",
+  "types": "./dist/deezer.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/deezer.d.ts",
+      "default": "./dist/deezer.js"
+    },
+    "./decoder": {
+      "types": "./dist/decoder.d.ts",
+      "default": "./dist/decoder.js"
+    }
+  },
+  "bin": {
+    "aurix-deezer": "./dist/deezer.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "start": "tsx deezer.ts",
+    "search": "tsx deezer.ts"
+  },
+  "dependencies": {
+    "egoroof-blowfish": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.0"
+  }
+}

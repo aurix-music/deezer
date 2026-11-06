@@ -1,0 +1,65 @@
+# Manual publish to npm.
+#
+# Setup once: Repository -> Settings -> Secrets and variables -> Actions -> NPM_TOKEN
+# (an automation token with publish rights on the @aurix-music scope).
+# Then: bump the version with `npm version x.y.z --no-git-tag-version`, commit,
+# push to master, and run this workflow from the Actions tab.
+#
+# Provenance needs a public repository; on a private repo drop --provenance.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: "npm dist-tag (latest, next, beta)"
+        required: true
+        default: latest
+      dry_run:
+        description: "Dry run — build and pack, skip the publish"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Publish package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DIST_TAG: ${{ inputs.dist_tag }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          extra=""
+          if [ "${DRY_RUN}" = "true" ]; then extra="--dry-run"; fi
+          npm publish --tag "${DIST_TAG}" --access public --provenance ${extra}
