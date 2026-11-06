@@ -1,9 +1,13 @@
-# Manual publish to npm.
+# Manual publish to npm (staged).
 #
 # Setup once: Repository -> Settings -> Secrets and variables -> Actions -> NPM_TOKEN
-# (an automation token with publish rights on the @aurix-music scope).
-# Then: bump the version with `npm version x.y.z --no-git-tag-version`, commit,
-# push to master, and run this workflow from the Actions tab.
+# (an npm token with publish access to @aurix-music/deezer).
+#
+# Tokens with 2FA bypass enabled can only write to a staging area, so `npm publish`
+# fails with E_STAGE_REQUIRED. This job runs `npm stage publish` instead: the version
+# is parked in Staged Packages on npmjs.com and a maintainer approves it with 2FA,
+# which is what puts it on the registry under `latest`. The approval step is inherent
+# to the token class — a runner cannot supply a one-time password.
 #
 # Provenance needs a public repository; on a private repo drop --provenance.
 name: Release
@@ -11,12 +15,8 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      dist_tag:
-        description: "npm dist-tag (latest, next, beta)"
-        required: true
-        default: latest
       dry_run:
-        description: "Dry run — build and pack, skip the publish"
+        description: "Dry run — build, test and pack, skip the upload"
         type: boolean
         default: false
 
@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish to npm
+    name: Stage release
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -41,6 +41,12 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      # Staged publishing needs npm >= 11.15.0; the runner image ships 10.x.
+      - name: Upgrade npm
+        run: |
+          npm install -g npm@11.15.0
+          npm --version
+
       - name: Install dependencies
         run: npm ci
 
@@ -53,13 +59,14 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Publish package
+      - name: Stage package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          DIST_TAG: ${{ inputs.dist_tag }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
-          extra=""
-          if [ "${DRY_RUN}" = "true" ]; then extra="--dry-run"; fi
-          npm publish --tag "${DIST_TAG}" --access public --provenance ${extra}
+          if [ "${DRY_RUN}" = "true" ]; then
+            npm publish --access public --dry-run
+          else
+            npm stage publish --access public --provenance
+          fi
