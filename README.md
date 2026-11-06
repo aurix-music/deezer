@@ -16,15 +16,15 @@ npm i @aurix-music/deezer
 ## Use as a library
 
 ```ts
-import { login, getStream, downloadDecrypted } from '@aurix-music/deezer';
+import { login, getStream, download } from '@aurix-music/deezer';
 import { blowfishKey, decryptChunks } from '@aurix-music/deezer/decoder';
 
 const session = await login(process.env.DEEZER_ARL!);
 const { url, format } = await getStream(session, 3135556);
-await downloadDecrypted(url, 3135556, `out.${format}`);
+await download(url, 3135556, `out.${format}`);
 ```
 
-Exports from the root: `login`, `search`, `getStream`, `downloadDecrypted`, `parseTrackId`,
+Exports from the root: `login`, `search`, `getStream`, `download`, `parseTrackId`,
 plus the types `Session`, `Track`, `Stream`, `Quality`.
 From `@aurix-music/deezer/decoder`: `blowfishKey`, `decryptChunks`, `decryptBuffer`,
 `isEncryptedChunk`, `looksLikeAudioStart`, `CHUNK_BYTES`, `STRIPE_EVERY`.

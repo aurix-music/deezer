@@ -8,9 +8,9 @@
     "strict": true,
     "noUncheckedIndexedAccess": false,
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "inlineSources": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSources": false,
     "outDir": "dist",
     "rootDir": ".",
     "skipLibCheck": true

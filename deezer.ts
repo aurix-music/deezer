@@ -193,7 +193,7 @@ function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
 }
 
 /** Fetch a CDN url, decrypt every enciphered chunk, write the plain audio. */
-export async function downloadDecrypted(
+export async function download(
   cdnUrl: string,
   trackId: number | string,
   outPath: string,
@@ -281,7 +281,7 @@ async function main(): Promise<void> {
     const stream = await getStream(session, id);
     const outPath = rest[1] ?? `deezer-${id}.${stream.format}`;
     console.log(`${stream.format} ${stream.bitrate}kbps -> ${outPath}`);
-    const { bytes } = await downloadDecrypted(stream.url, id, outPath);
+    const { bytes } = await download(stream.url, id, outPath);
     console.log(`wrote ${bytes} bytes`);
     return;
   }

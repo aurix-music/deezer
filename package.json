@@ -1,6 +1,6 @@
 {
   "name": "@aurix-music/deezer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Standalone Deezer track resolver with BF_CBC_STRIPE decryption",
   "author": "vanquzie",
   "license": "MIT",
@@ -46,7 +46,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test",
     "prepublishOnly": "npm run typecheck && npm run build",
